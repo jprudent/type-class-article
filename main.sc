@@ -19,9 +19,9 @@ object Lib2:
   trait LastBlock[A]:
     def lastBlock(instance: A): Block
 
-  given LastBlock[Ethereum] = (eth: Ethereum) => eth.lastBlock
+  given LastBlock[Ethereum] = _.lastBlock
 
-  given LastBlock[Bitcoin] = (btc: Bitcoin) => http("http://bitcoin/last")
+  given LastBlock[Bitcoin] = _ => http("http://bitcoin/last")
 
 import Lib1.*, Lib2.*
 
