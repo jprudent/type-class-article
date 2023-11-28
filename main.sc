@@ -19,16 +19,16 @@ object Lib2:
   trait LastBlock[A]:
     def lastBlock(instance: A): Block
 
-  val ethereumLastBlock = new LastBlock[Ethereum]:
+  given ethereumLastBlock:LastBlock[Ethereum] = new LastBlock[Ethereum]:
     def lastBlock(eth: Ethereum) = eth.lastBlock
 
-  val bitcoinLastBlock = new LastBlock[Bitcoin]:
+  given bitcoinLastBlock:LastBlock[Bitcoin] = new LastBlock[Bitcoin]:
     def lastBlock(btc: Bitcoin) = http("http://bitcoin/last")
 
 import Lib1.*, Lib2.*
 
-def useLastBlock[A](instance: A, behavior: LastBlock[A]) =
+def useLastBlock[A](instance: A)(using behavior: LastBlock[A]) =
   behavior.lastBlock(instance)
 
-println(useLastBlock(Ethereum(lastBlock = 2), ethereumLastBlock))
-println(useLastBlock(Bitcoin(), bitcoinLastBlock))
+println(useLastBlock(Ethereum(lastBlock = 2)))
+println(useLastBlock(Bitcoin()))
