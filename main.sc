@@ -25,10 +25,16 @@ object Lib2:
   given LastBlock[Bitcoin] with
     def lastBlock(btc: Bitcoin) = http("http://bitcoin/last")
 
-  extension[A](instance: A)
-    def lastBlock(using tc: LastBlock[A]) = tc.lastBlock(instance)
+  extension[A](instance: A)(using tc: LastBlock[A])
+    def lastBlock = tc.lastBlock(instance)
+    def penultimateBlock = tc.lastBlock(instance) - 1
 
 import Lib1.*, Lib2.*
 
-println(Ethereum(lastBlock = 2).lastBlock)
-println(Bitcoin().lastBlock)
+val eth = Ethereum(lastBlock = 2)
+println(eth.lastBlock)
+println(eth.penultimateBlock)
+
+val btc = Bitcoin()
+println(btc.lastBlock)
+println(btc.penultimateBlock)
