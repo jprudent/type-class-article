@@ -18,7 +18,20 @@ object Lib2:
   case class Polkadot() extends Blockchain:
     override def getBlock(height: Height): Block = todo
 
-import Lib1.*, Lib2.*
-println(Ethereum().getBlock(1))
-println(Bitcoin().getBlock(1))
-println(Polkadot().getBlock(1))
+  def lastBlock(blockchain: Blockchain): Block = blockchain match
+      case _:Ethereum => todo
+      case _:Bitcoin  => todo
+      case _:Polkadot => todo
+  
+
+object Lib3:
+  import Lib1.*
+
+  case class Polygon() extends Blockchain:
+    override def getBlock(height: Height): Block = todo
+
+import Lib1.*, Lib2.*, Lib3.*
+println(lastBlock(Bitcoin()))
+println(lastBlock(Ethereum()))
+println(lastBlock(Polkadot()))
+println(lastBlock(Polygon()))
