@@ -13,27 +13,30 @@ object Lib1:
   case class Bitcoin() extends Blockchain:
     override def getBlock(height: Height) = todo
 
-object Lib2:
-  import Lib1.*
+object GenericLib:
 
-  trait LastBlock[A]:
-    def lastBlock(instance: A): Block
+  trait Named[A]:
+    def blockchainName(instance: A): String
 
-  given LastBlock[Ethereum] with
-    def lastBlock(eth: Ethereum) = eth.lastBlock
+  object Named:
+    import scala.deriving.*
 
-  given LastBlock[Bitcoin] with
-    def lastBlock(btc: Bitcoin) = http("http://bitcoin/last")
+    inline final def derived[A](using inline m: Mirror.Of[A]): Named[A] =
+      val nameOfType: String = inline m match
+        case p: Mirror.ProductOf[A] => compiletime.constValue[p.MirroredLabel]
+        case _ => compiletime.error("Not a product")
+      new Named[A]:
+        override def blockchainName(instance: A):String = nameOfType.toLowerCase
 
-  extension[A](instance: A)(using tc: LastBlock[A])
-    def lastBlock = tc.lastBlock(instance)
-    def penultimateBlock = tc.lastBlock(instance) - 1
+  extension[A] (instance: A)(using tc: Named[A])
+    def blockchainName = tc.blockchainName(instance)
 
-import Lib1.*, Lib2.*
+import Lib1.*, GenericLib.*
 
-def useLastBlock1[A](instance: A)(using LastBlock[A]) = instance.lastBlock
+case class Polkadot() derives Named
+given Named[Bitcoin] = Named.derived
+given Named[Ethereum] = Named.derived
 
-def useLastBlock2[A: LastBlock](instance: A) = instance.lastBlock
-
-val eth = Ethereum(lastBlock = 2)
-assert(useLastBlock1(eth) == useLastBlock2(eth))
+println(Ethereum(lastBlock = 2).blockchainName)
+println(Bitcoin().blockchainName)
+println(Polkadot().blockchainName)
