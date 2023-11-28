@@ -31,10 +31,9 @@ object Lib2:
 
 import Lib1.*, Lib2.*
 
-val eth = Ethereum(lastBlock = 2)
-println(eth.lastBlock)
-println(eth.penultimateBlock)
+def useLastBlock1[A](instance: A)(using LastBlock[A]) = instance.lastBlock
 
-val btc = Bitcoin()
-println(btc.lastBlock)
-println(btc.penultimateBlock)
+def useLastBlock2[A: LastBlock](instance: A) = instance.lastBlock
+
+val eth = Ethereum(lastBlock = 2)
+assert(useLastBlock1(eth) == useLastBlock2(eth))
